@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "yahoo-finance2": "^2.13.3"
+  },
+  "type": "module"
+}
