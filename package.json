@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "chalk": "^5.4.1",
+    "cliui": "^8.0.1",
     "yahoo-finance2": "^2.13.3"
   },
   "type": "module"
