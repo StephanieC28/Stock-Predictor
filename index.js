@@ -1,5 +1,8 @@
 // import syntax (recommended)
 import yahooFinance from 'yahoo-finance2';
+import cliui from 'cliui';
+import chalk from 'chalk';
+
 
 // require syntax (if your code base does not support imports)
 // const yahooFinance = require('yahoo-finance2').default; // NOTE the .default
@@ -19,13 +22,31 @@ async function getStockPrices(stockTicker) {
         // https://github.com/gadicc/node-yahoo-finance2/blob/devel/docs/modules/chart.md
         const queryOptions = { period1: '2021-05-08', interval: '1d' };
         const result = await yahooFinance.chart(stockTicker, queryOptions);
-        result.quotes.forEach((price) => {
-            console.log(`Date: ${price.date}, Close: ${price.close}`);
+        const ui = cliui({})
+        ui.div({
+            text: "Date",
+            padding: [2, 0, 1, 0]
+        },
+        {
+            text: "Close",
+            padding: [2, 0, 1, 0]
         });
-        console.log(result.events.dividends);
-        console.log(result.meta);
+        result.quotes.forEach((price) => {
+            ui.div({
+                text: `${price.date}`,
+                width: 35,
+                padding: [2, 0, 1, 0]
+            }, {
+                text: `${price.close}`,
+                width: 35,
+                padding: [2, 0, 1, 0]
+            });
+        });
+        // console.log(result.events.dividends);
+        // console.log(result.meta);
 
-        console.log(Object.keys(result));
+        // console.log(Object.keys(result));
+        console.log(ui.toString())
     } catch (error) {
         console.error(`Sorry, we couldn't find data for ${stockTicker}.`);
         console.error(error);
