@@ -20,7 +20,7 @@ async function getStockPrices(stockTicker) {
         // });
 
         // https://github.com/gadicc/node-yahoo-finance2/blob/devel/docs/modules/chart.md
-        const queryOptions = { period1: '2021-05-08', interval: '1d' };
+        const queryOptions = { period1: '2021-05-08', period2: '2021-05-09', interval: '1d' };
         const result = await yahooFinance.chart(stockTicker, queryOptions);
         const ui = cliui({})
         ui.div({
