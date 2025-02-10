@@ -1,66 +1,83 @@
-// import syntax (recommended)
+// Import syntax (recommended)
 import yahooFinance from 'yahoo-finance2';
 import cliui from 'cliui';
 import chalk from 'chalk';
 
-
-// require syntax (if your code base does not support imports)
-// const yahooFinance = require('yahoo-finance2').default; // NOTE the .default
-
-
-
 // Function to get stock prices
-async function getStockPrices(stockTicker) {
+async function getStockPrices(stockTicker, period1, period2) {
     try {
-        // const options = { period1: '7', interval: '1d' }; //Fetches last weeks prices
-        // const prices = await yahooFinance.historical(stockTicker, options);
-        // console.log(`Prices for ${stockTicker} over the last week`);
-        // prices.forEach((price) => {
-        //     console.log(`Date: ${price.date}, Close: ${price.close}`);
-        // });
-
-        // https://github.com/gadicc/node-yahoo-finance2/blob/devel/docs/modules/chart.md
-        const queryOptions = { period1: '2021-05-08', period2: '2021-05-09', interval: '1d' };
+        const queryOptions = { period1, period2 };
         const result = await yahooFinance.chart(stockTicker, queryOptions);
-        const ui = cliui({})
-        ui.div({
-            text: "Date",
-            padding: [2, 0, 1, 0]
-        },
-        {
-            text: "Close",
-            padding: [2, 0, 1, 0]
-        });
-        result.quotes.forEach((price) => {
-            ui.div({
-                text: `${price.date}`,
-                width: 35,
-                padding: [2, 0, 1, 0]
-            }, {
-                text: `${price.close}`,
-                width: 35,
-                padding: [2, 0, 1, 0]
-            });
-        });
-        // console.log(result.events.dividends);
-        // console.log(result.meta);
 
-        // console.log(Object.keys(result));
-        console.log(ui.toString())
+        // Log the structure of the result object for debugging
+        console.log('Raw API Response:', result);
+        
+        // Check if the result contains quotes
+        if (result && result.quotes && result.quotes.length > 0) {
+            const ui = cliui({});
+            ui.div(
+                {
+                    text: chalk.bold("Date"),
+                    padding: [2, 0, 1, 0]
+                },
+                {
+                    text: chalk.bold("Close"),
+                    padding: [2, 0, 1, 0]
+                }
+            );
+
+            result.quotes.forEach((price) => {
+                const date = new Date(price.date).toISOString().split('T')[0];
+                const close = price.close.toFixed(2);
+                ui.div(
+                    {
+                        text: `${date}`,
+                        width: 35,
+                        padding: [2, 0, 1, 0]
+                    },
+                    {
+                        text: `${close}`,
+                        width: 35,
+                        padding: [2, 0, 1, 0]
+                    }
+                );
+            });
+
+            console.log(ui.toString());
+        } else {
+            console.error(`No quotes found for ${stockTicker}.`);
+        }
     } catch (error) {
         console.error(`Sorry, we couldn't find data for ${stockTicker}.`);
         console.error(error);
     }
 }
 
-// Passing arguments for node.js
+// Function to handle user input
+function handleUserInput(input) {
+    const inputs = input.trim().split(' ');
+    if (inputs.length === 3 ) {
+        const [stockTicker, period1, period2] = inputs;
+        getStockPrices(stockTicker.toUpperCase(), period1, period2);
+    } else {
+        console.error("Please provide a valid stock symbol and date range in the format: <symbol> <start_date> <end_date>");
+    }
+    process.stdin.pause();  // Stop reading input after processing
+}
+
+
+// Either pass arguments for node.js or run the prompt if no argument is provided
 async function run() {
     const args = process.argv.slice(2);
     if (args.length === 0) {
-        console.error("Please provide an accurate stock symbol.");
+        console.log('Please provide a stock symbol and date range (format: <symbol> <start_date> <end_date>): ');
+        process.stdin.setEncoding('utf8');
+        process.stdin.once('data', handleUserInput);
+    } else if (args.length === 3) {
+        const [stockTicker, period1, period2] = args;
+        await getStockPrices(stockTicker.toUpperCase(), period1, period2);
     } else {
-        const stockTicker = args[0].toUpperCase(); //Changes the stock ticker to all uppercase
-        await getStockPrices(stockTicker);
+        console.error("Sorry, please provide a valid stock symbol and date range in the format: <symbol> <start_date> <end_date>");
     }
 }
 
