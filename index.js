@@ -8,9 +8,6 @@ async function getStockPrices(stockTicker, period1, period2) {
     try {
         const queryOptions = { period1, period2 };
         const result = await yahooFinance.chart(stockTicker, queryOptions);
-
-        // Log the structure of the result object for debugging
-        console.log('Raw API Response:', result);
         
         // Check if the result contains quotes
         if (result && result.quotes && result.quotes.length > 0) {
