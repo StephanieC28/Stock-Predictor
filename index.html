@@ -1,1 +1,79 @@
-<h1>Hello World!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Prediction</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input, button {
+      margin: 10px 0;
+      padding: 8px;
+      font-size: 1rem;
+    }
+    .response {
+      white-space: pre-wrap;
+      background-color: #f4f4f4;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Stock Prediction</h1>
+  <form id="stockForm">
+    <label for="stockTicker">Stock Ticker:</label><br>
+    <input type="text" id="stockTicker" name="stockTicker" placeholder="e.g., MSFT" required><br>
+
+    <label for="startDate">Start Date (YYYY-MM-DD):</label><br>
+    <input type="date" id="startDate" name="startDate" required><br>
+
+    <label for="endDate">End Date (YYYY-MM-DD):</label><br>
+    <input type="date" id="endDate" name="endDate" required><br>
+
+    <button type="submit">Get Prediction</button>
+  </form>
+
+  <h2>Response</h2>
+  <div id="response" class="response">Results will appear here...</div>
+
+  <script>
+    document.getElementById('stockForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const stockTicker = document.getElementById("stockTicker").value;
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+
+      const responseDiv = document.getElementById("response");
+      responseDiv.innerHTML = "Processing your request...";
+
+      try {
+        const response = await fetch("/server.js", {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stockTicker, startDate, endDate }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        responseDiv.innerHTML = data.message;
+      } catch (error) {
+        console.error("Error in fetch: ", error);
+        responseDiv.innerHTML = "An error occurred: " + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
