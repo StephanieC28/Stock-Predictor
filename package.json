@@ -1,8 +1,33 @@
 {
-  "dependencies": {
-    "chalk": "^5.4.1",
-    "cliui": "^8.0.1",
-    "yahoo-finance2": "^2.13.3"
+  "name": "stock-predictor",
+  "version": "1.0.0",
+  "description": "This is my stock prediction tool.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "type": "module"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/StephanieC28/Stock-Predictor.git"
+  },
+  "author": "Stephanie Chiu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/StephanieC28/Stock-Predictor/issues"
+  },
+  "homepage": "https://github.com/StephanieC28/Stock-Predictor#readme",
+  "dependencies": {
+    "@azure-rest/ai-inference": "^1.0.0-beta.6",
+    "@azure/core-auth": "^1.9.0",
+    "@azure/core-sse": "^2.1.3",
+    "babar": "^0.2.3",
+    "body-parser": "^2.2.0",
+    "chalk": "^5.4.1",
+    "cli-graph": "^3.2.2",
+    "cliui": "^8.0.1",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "yahoo-finance2": "^2.13.3"
+  }
 }
