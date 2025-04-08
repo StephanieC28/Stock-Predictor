@@ -3,7 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import path from "path";
 import { fileURLToPath } from "url";
-import chalk from "chalk";
+// import chalk from "chalk";
 import babar from "babar";
 import { getStockPrices } from "./index.js";
 
@@ -18,7 +18,7 @@ app.use(express.static(path.join(__dirname, "public"))); // Serve static files (
 
 // Route to serve the HTML page
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 // Route to handle stock prediction requests
@@ -33,8 +33,8 @@ app.post("/predict", async (req, res) => {
 
   try {
     // Call the function to get stock prices and predictions
-    const { predictedPrices } = await getStockPrices(stockTicker, startDate, endDate);
-
+    const predictedPrices = await getStockPrices(stockTicker, startDate, endDate);
+    console.log("Predicted Prices: ", predictedPrices);
     //Create graphs for output
     const predictedGraph = babar(
         predictedPrices.map(([dateNum, price], index) => [index, price]),
@@ -45,15 +45,15 @@ app.post("/predict", async (req, res) => {
         xFractions: 0,
         yFractions: 2,
       }
-    );    
-    
+    );
+
     // Format response into a friendly message
     const resultMessage = `
         Predicted Results for ${stockTicker} (${startDate} to ${endDate}):
-        
+
         Predicted Closing Prices:
         ${predictedGraph}
-  
+
     `;
 
     //Send JSON response

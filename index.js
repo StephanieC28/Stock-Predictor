@@ -1,14 +1,8 @@
-// Import syntax
-import readline from 'readline';
 import ModelClient, { isUnexpected } from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
 import yahooFinance from 'yahoo-finance2';
-import cliui from 'cliui';
 import chalk from 'chalk';
-//import cliGraph from 'cli-graph';
-import babar from 'babar';
 import dotenv from "dotenv";
-import { start } from 'repl';
 
 dotenv.config();
 
@@ -110,52 +104,9 @@ async function getStockPrices(stockTicker, period1, period2) {
         if (result && result.quotes && result.quotes.length > 0) {
             console.log("Result:", result);
             const predictedPrices = [];
-
-            ui.div(
-                {
-                    text: chalk.bold("Date"),
-                    width: 35,
-                    padding: [0, 2, 0, 2]
-                },
-                {
-                    text: chalk.bold("Open"),
-                    width: 35,
-                    padding: [0, 2, 0, 2]
-                },
-                {
-                    text: chalk.bold("Close"),
-                    width: 35,
-                    padding: [0, 2, 0, 2]
-                }
-            );
-
             for (const price of result.quotes) {
                 const date = new Date(price.date).toISOString().split("T")[0];
                 const open = price.open.toFixed(2);
-                const close = price.close.toFixed(2);
-                const dateNum = convertDateToNumber(date);
-
-                //Add real prices to their respective arrays
-                openingPrices.push([dateNum, parseFloat(open)]);
-                closingPrices.push([dateNum, parseFloat(close)]);
-                
-                ui.div(
-                    {
-                        text: `${date}`,
-                        width: 25,
-                        padding: [0, 2, 0, 2]
-                    },
-                    {
-                        text: `${open}`,
-                        width: 25,
-                        padding: [0, 2, 0, 2]
-                    },
-                    {
-                        text: `${close}`,
-                        width: 27,
-                        padding: [0, 2, 0, 2]
-                    }
-                );
 
                 //Generate AI Prompts & get predictions
                 const prompt = generatePrompt(stockTicker, date, open);
@@ -171,27 +122,13 @@ async function getStockPrices(stockTicker, period1, period2) {
                 console.log(chalk.bold(`General Direction: ${generalDirection}`));
             }
 
-            console.log(ui.toString());
-
-            //create the graphs of predicted prices
-
-            const predictedGraph = babar(predictedPrices, {
-                width: 80,
-                height: 30,
-                color: "blue",
-                caption: "Predicted Closing Prices",
-                xFractions: 0,
-                yFractions: 2,
-            });
-
-            console.log(chalk.bold("\nGraph of Predicted Closing Prices: "));
-            console.log(predictedGraph);
+            return predictedPrices;
     } else {
         console.error(`No quotes found for ${stockTicker}.`);
     }
  } catch (error) {
     console.error(`Sorry, we couldn't find data for ${stockTicker}.`);
-    console.error (error);
+    console.error(error);
  }
 }
 
