@@ -61,19 +61,22 @@
           method: "POST",
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ stockTicker, startDate, endDate }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.statusText}`);
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Server error: ${response.status} ${response.statusText}`);
         }
+        return response.json();
+      })
+      .then(data => {
+        responseDiv.innerHTML = data.message;
+      })
+      .catch(error => {
+        console.error("Error in fetch:", error);
+        responseDiv.innerHTML = "An error occurred: " + error.message;
+      });
 
         const data = await response.json();
-        responseDiv.innerHTML = data.message;
-      } catch (error) {
-        console.error("Error in fetch: ", error);
-        responseDiv.innerHTML = "An error occurred: " + error.message;
-      }
-    });
   </script>
 </body>
 </html>

@@ -3,7 +3,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import path from "path";
 import { fileURLToPath } from "url";
-// import chalk from "chalk";
+import chalk from "chalk";
 import babar from "babar";
 import { getStockPrices } from "./index.js";
 
@@ -23,6 +23,7 @@ app.get("/", (req, res) => {
 
 // Route to handle stock prediction requests
 app.post("/predict", async (req, res) => {
+  try {
   const { stockTicker, startDate, endDate } = req.body;
 
   console.log("Recieved input: ", { stockTicker, startDate, endDate });
@@ -31,10 +32,25 @@ app.post("/predict", async (req, res) => {
     return res.status(400).json({ message: "Invalid input. Please provide stockTicker, startDate, and endDate." });
   }
 
+  const results = await getStockPrices(stockTicker, startDate, endDate);
+
+  console.log("Results before sending:", results); //Debugging output
+
+  if (!results) {
+    return res.status(500).json({ message: "Stock data retrieval failed." });
+  }
+
+  res.json({ message: results });
+} catch (error) {
+  console.error("Error processing request:", error);
+  res.status(500).json({ message: "An error occurred while processing your request." });
+}
+});
   try {
     // Call the function to get stock prices and predictions
     const predictedPrices = await getStockPrices(stockTicker, startDate, endDate);
     console.log("Predicted Prices: ", predictedPrices);
+
     //Create graphs for output
     const predictedGraph = babar(
         predictedPrices.map(([dateNum, price], index) => [index, price]),
@@ -45,25 +61,19 @@ app.post("/predict", async (req, res) => {
         xFractions: 0,
         yFractions: 2,
       }
-    );
-
+    );    
+    
     // Format response into a friendly message
     const resultMessage = `
         Predicted Results for ${stockTicker} (${startDate} to ${endDate}):
-
+        
         Predicted Closing Prices:
         ${predictedGraph}
-
+  
     `;
-
-    //Send JSON response
-    res.json({ message: resultMessage });
     } catch (error) {
-        console.error("Error processing request:", error);
-        res.status(500).json({ message: "An error occurred while processing your request." });
-}
-});
-
+      console.error("Error:", error);
+    }
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);

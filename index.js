@@ -1,7 +1,10 @@
+// Import syntax
 import ModelClient, { isUnexpected } from "@azure-rest/ai-inference";
 import { AzureKeyCredential } from "@azure/core-auth";
 import yahooFinance from 'yahoo-finance2';
 import chalk from 'chalk';
+//import cliGraph from 'cli-graph';
+import babar from 'babar';
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -107,6 +110,7 @@ async function getStockPrices(stockTicker, period1, period2) {
             for (const price of result.quotes) {
                 const date = new Date(price.date).toISOString().split("T")[0];
                 const open = price.open.toFixed(2);
+                const dateNum = convertDateToNumber(date);
 
                 //Generate AI Prompts & get predictions
                 const prompt = generatePrompt(stockTicker, date, open);
@@ -123,48 +127,29 @@ async function getStockPrices(stockTicker, period1, period2) {
             }
 
             return predictedPrices;
-    } else {
-        console.error(`No quotes found for ${stockTicker}.`);
+        } else {
+            console.error(`No quotes found for ${stockTicker}.`);
+        }
+    } catch (error) {
+        console.error(`Sorry, we couldn't find data for ${stockTicker}.`);
+        console.error (error);
     }
- } catch (error) {
-    console.error(`Sorry, we couldn't find data for ${stockTicker}.`);
-    console.error(error);
- }
+    console.log(ui.toString());
+
+    //create the graphs of predicted prices
+
+    const predictedGraph = babar(predictedPrices, {
+        width: 80,
+        height: 30,
+        color: "blue",
+        caption: "Predicted Closing Prices",
+        xFractions: 0,
+        yFractions: 2,
+    });
+
+    console.log(chalk.bold("\nGraph of Predicted Closing Prices: "));
+    console.log(predictedGraph);
 }
-
-//Input Validation
-//function handleUserInput(stockTicker, startDate, endDate) {
-    //console.log("Validating input...");
-    //console.log(`Stock Ticker: ${stockTicker}`);
-    //console.log(`Start Date: ${startDate}`);
-    //console.log(`End Date: ${endDate}`);
-
-    //if (!stockTicker || !startDate || !endDate) {
-        //console.error("Error: All fields are required. Please provide valid inputs.");
-        //process.exit(1);
-    //}
-
-    //getStockPrices(stockTicker.toUpperCase(), startDate, endDate);
-//}
-
-//Interactive prompt using readline
-//function promptForInput() {
-    //const rl = readline.createInterface({
-        //input: process.stdin,
-        //output: process.stdout,
-    //});
-
-    //rl.question("Enter stock ticker: ", (stockTicker) => {
-        //rl.question("Enter start date: ", (startDate) => {
-            //rl.question("Enter end date: ", (endDate) => {
-                //handleUserInput(stockTicker, startDate, endDate);
-                //rl.close();
-            //});
-        //});
-    //});
-//}
-
-//promptForInput();
 
 //Export for use in server.js
 export { getStockPrices };
