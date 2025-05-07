@@ -85,6 +85,8 @@ function generatePrompt(stockTicker, date, openingPrice) {
 
 //Function to extract AI Predictions from its response
 function extractPredictions(aiResponse) {
+    // This is not correct.
+    // Instead: split by line first and then get the second last and last line and split by space
     const words = aiResponse.trim().split(" ");
     const predictedPrice = words[words.length - 2]; // Second-to-last word
     const generalDirection = words[words.length - 1]; // Last word
@@ -107,7 +109,8 @@ async function getStockPrices(stockTicker, period1, period2) {
         if (result && result.quotes && result.quotes.length > 0) {
             console.log("Result:", result);
             const predictedPrices = [];
-            for (const price of result.quotes) {
+            // for (const price of result.quotes) {
+                const price = result.quotes[0]; // Use the first quote for prediction
                 const date = new Date(price.date).toISOString().split("T")[0];
                 const open = price.open.toFixed(2);
                 const dateNum = convertDateToNumber(date);
@@ -115,6 +118,7 @@ async function getStockPrices(stockTicker, period1, period2) {
                 //Generate AI Prompts & get predictions
                 const prompt = generatePrompt(stockTicker, date, open);
                 const aiResponse = await queryModel(prompt);
+                console.log(chalk.bold(`\nAI Response: ${aiResponse}`));
 
                 //Extract prediction only
                 const { predictedPrice, generalDirection } = extractPredictions(aiResponse);
@@ -124,7 +128,7 @@ async function getStockPrices(stockTicker, period1, period2) {
                 console.log(chalk.bold(`\nDate: ${date}`));
                 console.log(chalk.bold(`Predicted Closing Price: ${predictedPrice}`));
                 console.log(chalk.bold(`General Direction: ${generalDirection}`));
-            }
+            // }
 
             return predictedPrices;
         } else {
@@ -181,4 +185,8 @@ async function run() {
         console.error("Sorry, please provide a valid stock symbol and date range in the format: symbol start_date end_date in yyyy-mm-dd");
     }
 }
-run();
+
+// Only run the script if it's not being imported.
+if (import.meta.url === `file://${process.argv[1]}`) {
+    run();
+}
